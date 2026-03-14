@@ -26,9 +26,9 @@
                       value="jdbc:postgresql://localhost:5432/gestao_tarefas"/>
 
             <property name="jakarta.persistence.jdbc.user"
-                      value="postgres"/>
+                      value="gestao_user"/>
             <property name="jakarta.persistence.jdbc.password"
-                      value="postgres"/>
+                      value="gestao123"/>
 
             <!-- config hibernate -->
             <property name="hibernate.dialect"
