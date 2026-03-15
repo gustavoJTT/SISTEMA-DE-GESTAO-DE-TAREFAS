@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+<h:head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Erro - Gestão de Tarefas</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .app-header {
+            background-color: #1565c0;
+            color: white;
+            padding: 14px 32px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+
+        .app-header h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .error-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 5rem;
+            margin-bottom: 16px;
+        }
+
+        .error-code {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #1565c0;
+            line-height: 1;
+        }
+
+        .error-message {
+            font-size: 1.2rem;
+            color: #555;
+            margin: 10px 0 30px 0;
+        }
+
+        .btn-home {
+            display: inline-block;
+            padding: 10px 28px;
+            background-color: #1565c0;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn-home:hover {
+            background-color: #0d47a1;
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <div class="app-header">
+        <h1>Gestão de Tarefas</h1>
+    </div>
+
+    <div class="error-container">
+        <div class="error-icon">&#9888;</div>
+        <div class="error-code">Ops!</div>
+        <p class="error-message">
+            A página que você tentou acessar não foi encontrada ou ocorreu um erro inesperado.
+        </p>
+        <h:link value="Voltar para a página inicial" outcome="/index" styleClass="btn-home"/>
+    </div>
+</h:body>
+</html>

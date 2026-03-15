@@ -12,10 +12,6 @@
             <supported-locale>pt_BR</supported-locale>
         </locale-config>
 
-        <!-- integracao jsf e cdi -->
-        <el-resolver>
-            org.jboss.weld.module.web.el.WeldELResolver
-        </el-resolver>
     </application>
 
 </faces-config>
