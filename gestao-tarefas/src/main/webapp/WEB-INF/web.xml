@@ -14,6 +14,12 @@
         <param-value>Development</param-value>
     </context-param>
 
+    <!-- tema do primefaces -->
+    <context-param>
+        <param-name>primefaces.THEME</param-name>
+        <param-value>saga</param-value>
+    </context-param>
+
     <!-- sufix das views do jsf -->
     <context-param>
         <param-name>jakarta.faces.DEFAULT_SUFFIX</param-name>

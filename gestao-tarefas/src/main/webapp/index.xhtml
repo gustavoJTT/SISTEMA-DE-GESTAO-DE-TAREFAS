@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Gestão de Tarefas</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .app-header {
+            background-color: #1565c0;
+            color: white;
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+
+        .app-header h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .content {
+            padding: 28px 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin: 24px 0 10px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #1565c0;
+            display: inline-block;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .badge-alta   { background-color: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+        .badge-media  { background-color: #fff8e1; color: #e65100; border: 1px solid #ffcc80; }
+        .badge-baixa  { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+
+        .titulo-concluida {
+            text-decoration: line-through;
+            color: #9e9e9e;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            padding: 4px 0;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-field .ui-outputlabel {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #444;
+        }
+
+        .form-field .ui-inputtext,
+        .form-field .ui-inputtextarea,
+        .form-field .ui-selectonemenu {
+            width: 100% !important;
+        }
+
+        .full-col {
+            grid-column: 1 / -1;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 20px;
+            padding-top: 14px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 4px;
+        }
+
+        .table-wrapper {
+            margin-bottom: 32px;
+        }
+
+        .deadline-vencida {
+            color: #c62828;
+            font-weight: 600;
+        }
+    </style>
+</h:head>
+
+<h:body>
+
+    <!-- Mensagens globais -->
+    <p:growl id="msgs" showDetail="false" life="4000" autoUpdate="true"/>
+
+    <!-- Cabeçalho -->
+    <div class="app-header">
+        <h1>Gestão de Tarefas</h1>
+        <h:form id="formHeader">
+            <p:commandButton value="Nova Tarefa"
+                             icon="pi pi-plus"
+                             styleClass="ui-button-contrast"
+                             action="#{tarefaBean.novo()}"
+                             oncomplete="PF('dlgTarefa').show()"
+                             update=":formDialog"
+                             process="@this"
+                             ajax="true"/>
+        </h:form>
+    </div>
+
+    <div class="content">
+
+        <!-- === TAREFAS EM ANDAMENTO === -->
+        <div class="table-wrapper">
+            <h2 class="section-title">Tarefas em Andamento</h2>
+            <h:form id="formAndamento">
+                <p:dataTable id="tblAndamento"
+                             value="#{tarefaBean.tarefasEmAndamento}"
+                             var="t"
+                             emptyMessage="Nenhuma tarefa em andamento."
+                             paginator="true"
+                             rows="8"
+                             paginatorPosition="bottom"
+                             sortMode="single"
+                             rowHover="true"
+                             styleClass="ui-datatable-sm">
+
+                    <p:column headerText="Título" sortBy="#{t.titulo}" style="min-width: 180px;">
+                        <h:outputText value="#{t.titulo}"/>
+                    </p:column>
+
+                    <p:column headerText="Responsável" sortBy="#{t.responsavel}" style="min-width: 130px;">
+                        <h:outputText value="#{t.responsavel}"/>
+                    </p:column>
+
+                    <p:column headerText="Prioridade" sortBy="#{t.prioridade}" style="width: 110px; text-align: center;">
+                        <span class="badge badge-#{t.prioridade.name().toLowerCase()}">
+                            #{t.prioridade.rotulo}
+                        </span>
+                    </p:column>
+
+                    <p:column headerText="Deadline" sortBy="#{t.deadline}" style="width: 120px;">
+                        <h:outputText value="#{t.deadline}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" type="localDate"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Descrição" style="color: #666; font-size: 0.85rem;">
+                        <h:outputText value="#{t.descricao}"/>
+                    </p:column>
+
+                    <p:column headerText="Ações" style="width: 150px; text-align: center;">
+                        <div class="action-btns">
+                            <!-- Editar -->
+                            <p:commandButton icon="pi pi-pencil"
+                                             title="Editar tarefa"
+                                             styleClass="ui-button-warning ui-button-sm"
+                                             action="#{tarefaBean.editar(t)}"
+                                             oncomplete="PF('dlgTarefa').show()"
+                                             update=":formDialog"
+                                             process="@this"
+                                             ajax="true"/>
+
+                            <!-- Concluir -->
+                            <p:commandButton icon="pi pi-check"
+                                             title="Marcar como concluída"
+                                             styleClass="ui-button-success ui-button-sm"
+                                             action="#{tarefaBean.concluir(t)}"
+                                             update=":formAndamento:tblAndamento :formConcluidas:tblConcluidas"
+                                             process="@this"
+                                             ajax="true">
+                                <p:confirm header="Confirmar conclusão"
+                                           message="Deseja concluir a tarefa '#{t.titulo}'?"
+                                           icon="pi pi-check-circle"/>
+                            </p:commandButton>
+
+                            <!-- Remover -->
+                            <p:commandButton icon="pi pi-trash"
+                                             title="Remover tarefa"
+                                             styleClass="ui-button-danger ui-button-sm"
+                                             action="#{tarefaBean.remover(t)}"
+                                             update=":formAndamento:tblAndamento"
+                                             process="@this"
+                                             ajax="true">
+                                <p:confirm header="Confirmar remoção"
+                                           message="Deseja remover a tarefa '#{t.titulo}'? Esta ação não pode ser desfeita."
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
+                        </div>
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </div>
+
+        <!-- === TAREFAS CONCLUÍDAS === -->
+        <div class="table-wrapper">
+            <h2 class="section-title">Tarefas Concluídas</h2>
+            <h:form id="formConcluidas">
+                <p:dataTable id="tblConcluidas"
+                             value="#{tarefaBean.tarefasConcluidas}"
+                             var="t"
+                             emptyMessage="Nenhuma tarefa concluída ainda."
+                             paginator="true"
+                             rows="8"
+                             paginatorPosition="bottom"
+                             sortMode="single"
+                             rowHover="true"
+                             styleClass="ui-datatable-sm">
+
+                    <p:column headerText="Título" sortBy="#{t.titulo}" style="min-width: 180px;">
+                        <h:outputText value="#{t.titulo}" styleClass="titulo-concluida"/>
+                    </p:column>
+
+                    <p:column headerText="Responsável" sortBy="#{t.responsavel}" style="min-width: 130px;">
+                        <h:outputText value="#{t.responsavel}"/>
+                    </p:column>
+
+                    <p:column headerText="Prioridade" style="width: 110px; text-align: center;">
+                        <span class="badge badge-#{t.prioridade.name().toLowerCase()}">
+                            #{t.prioridade.rotulo}
+                        </span>
+                    </p:column>
+
+                    <p:column headerText="Deadline" sortBy="#{t.deadline}" style="width: 120px;">
+                        <h:outputText value="#{t.deadline}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" type="localDate"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Ações" style="width: 80px; text-align: center;">
+                        <p:commandButton icon="pi pi-trash"
+                                         title="Remover tarefa"
+                                         styleClass="ui-button-danger ui-button-sm"
+                                         action="#{tarefaBean.remover(t)}"
+                                         update=":formConcluidas:tblConcluidas"
+                                         process="@this"
+                                         ajax="true">
+                            <p:confirm header="Confirmar remoção"
+                                       message="Deseja remover a tarefa '#{t.titulo}'?"
+                                       icon="pi pi-exclamation-triangle"/>
+                        </p:commandButton>
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </div>
+
+    </div>
+
+    <!-- === DIALOG: CRIAR / EDITAR TAREFA === -->
+    <p:dialog widgetVar="dlgTarefa"
+              header="#{tarefaBean.tarefaEmEdicao.id == null ? 'Nova Tarefa' : 'Editar Tarefa'}"
+              modal="true"
+              resizable="false"
+              width="620"
+              showEffect="fade"
+              hideEffect="fade"
+              closable="true"
+              closeOnEscape="true">
+
+        <h:form id="formDialog">
+            <div class="form-grid">
+
+                <!-- Título (ocupa as 2 colunas) -->
+                <div class="form-field full-col">
+                    <p:outputLabel for="titulo" value="Título *"/>
+                    <p:inputText id="titulo"
+                                 value="#{tarefaBean.tarefaEmEdicao.titulo}"
+                                 required="true"
+                                 requiredMessage="Título é obrigatório."
+                                 maxlength="150"
+                                 style="width: 100%;"/>
+                    <p:message for="titulo" display="text"/>
+                </div>
+
+                <!-- Descrição (ocupa as 2 colunas) -->
+                <div class="form-field full-col">
+                    <p:outputLabel for="descricao" value="Descrição"/>
+                    <p:inputTextarea id="descricao"
+                                     value="#{tarefaBean.tarefaEmEdicao.descricao}"
+                                     rows="3"
+                                     autoResize="false"
+                                     style="width: 100%;"/>
+                </div>
+
+                <!-- Responsável -->
+                <div class="form-field">
+                    <p:outputLabel for="responsavel" value="Responsável *"/>
+                    <p:inputText id="responsavel"
+                                 value="#{tarefaBean.tarefaEmEdicao.responsavel}"
+                                 required="true"
+                                 requiredMessage="Responsável é obrigatório."
+                                 maxlength="100"
+                                 style="width: 100%;"/>
+                    <p:message for="responsavel" display="text"/>
+                </div>
+
+                <!-- Prioridade -->
+                <div class="form-field">
+                    <p:outputLabel for="prioridade" value="Prioridade *"/>
+                    <p:selectOneMenu id="prioridade"
+                                     value="#{tarefaBean.tarefaEmEdicao.prioridade}"
+                                     required="true"
+                                     requiredMessage="Prioridade é obrigatória."
+                                     style="width: 100%;">
+                        <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItems value="#{tarefaBean.prioridades}"
+                                       var="p"
+                                       itemLabel="#{p.rotulo}"
+                                       itemValue="#{p}"/>
+                    </p:selectOneMenu>
+                    <p:message for="prioridade" display="text"/>
+                </div>
+
+                <!-- Deadline -->
+                <div class="form-field">
+                    <p:outputLabel for="deadline" value="Deadline *"/>
+                    <p:datePicker id="deadline"
+                                  value="#{tarefaBean.tarefaEmEdicao.deadline}"
+                                  pattern="dd/MM/yyyy"
+                                  required="true"
+                                  requiredMessage="Deadline é obrigatório."
+                                  showIcon="true"
+                                  style="width: 100%;"/>
+                    <p:message for="deadline" display="text"/>
+                </div>
+
+            </div>
+
+            <!-- Botões do formulário -->
+            <div class="form-actions">
+                <p:commandButton value="Cancelar"
+                                 type="button"
+                                 icon="pi pi-times"
+                                 styleClass="ui-button-outlined ui-button-secondary"
+                                 onclick="PF('dlgTarefa').hide()"/>
+
+                <p:commandButton value="Salvar"
+                                 icon="pi pi-save"
+                                 action="#{tarefaBean.salvar()}"
+                                 update="formDialog :formAndamento:tblAndamento :formConcluidas:tblConcluidas"
+                                 oncomplete="if (!args.validationFailed) { PF('dlgTarefa').hide(); }"
+                                 process="formDialog"
+                                 ajax="true"/>
+            </div>
+        </h:form>
+    </p:dialog>
+
+    <!-- Diálogo de confirmação global (único na página) -->
+    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="380">
+        <p:commandButton value="Sim"
+                         type="button"
+                         styleClass="ui-confirmdialog-yes ui-button-danger"
+                         icon="pi pi-check"/>
+        <p:commandButton value="Não"
+                         type="button"
+                         styleClass="ui-confirmdialog-no ui-button-outlined"
+                         icon="pi pi-times"/>
+    </p:confirmDialog>
+
+</h:body>
+</html>
